@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily News - News Page</title>
+
+    <style>
+         *{
+            font-family: sans-serif;
+        }
+        #header{
+            width: 100%;
+            height: 80px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #searchDiv{
+            height: 50%;
+            margin: 1% 0 0 45%;
+        }
+
+        input{
+            width: 400px;
+            height: 80%;
+            border: 1px solid black;
+            border-radius: 5px;
+        }
+
+        button{
+            margin-left: 10px;
+            padding: 6px;
+            border-radius: 5px;
+            background-color: black;
+            color: white;
+            cursor: pointer;
+        }
+
+
+        h1, h2{
+            margin-left: 5%;
+        }
+        h1, h2{
+            margin-left: 5%;
+        }
+        #displayNews{
+            width: 900px;
+            margin-left: 5%;
+            /* border: 1px solid gray; */
+        }
+
+        .contentDiv{
+            width: 800px;
+            padding: 5px;
+            border: 1px solid whitesmoke;
+        }
+
+        .contentImg{
+            width: 400px;
+            margin: 20px;
+            margin-left: 30%;
+        }
+
+        .contTitle{
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .contDesc{
+            margin-top: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+
+        <h1>Daily News</h1>
+        <div id="searchDiv">
+            <input type="text" id="search" placeholder="Enter News">
+            <button id="searchBtn" onclick="searchNews()">Search</button>
+        </div>
+    
+    </div>
+
+    <div id="displayNews"></div>
+    
+</body>
+</html>
+
+<script>
+
+    let newsContainer = document.getElementById("displayNews");
+    let news = JSON.parse(localStorage.getItem("newsContent"));
+
+    console.log(news);
+
+    function showNews(news){
+
+        news.forEach(function(news){
+
+
+            let div = document.createElement("div");
+            div.setAttribute("class", "contentDiv");
+
+            let contImg = document.createElement("img");
+            contImg.src = news.urlToImage
+            contImg.setAttribute("class", "contentImg");
+
+            let newsTitle = document.createElement("div");
+            newsTitle.innerText = news.title;
+            newsTitle.setAttribute("class", "contTitle");
+
+            let newsDesc = document.createElement("div");
+            newsDesc.innerText = news.description;
+            newsDesc.setAttribute("class", "contDesc");
+
+            let newsAuthor = document.createElement("div");
+            newsAuthor.innerText = news.author;
+            newsAuthor.setAttribute("class", "contDesc");
+
+            let newsContent = document.createElement("div");
+            newsContent.innerText = news.content;
+            newsContent.setAttribute("class", "contDesc");
+
+            let newsTime = document.createElement("div");
+            newsTime.innerText = news.publishedAt;
+            newsTime.setAttribute("class", "contDesc");
+            newsTime.style.fontSize = "14px";
+
+            div.append(contImg, newsTitle, newsDesc, newsAuthor, newsContent, newsTime);
+            newsContainer.append(div);
+        });
+
+        
+
+    }
+
+    showNews(news);
+
+    
+
+
+</script>

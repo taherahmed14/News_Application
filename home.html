@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily News Home</title>
+
+    <style>
+        *{
+            font-family: sans-serif;
+        }
+        #header{
+            width: 100%;
+            height: 80px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #searchDiv{
+            height: 50%;
+            margin: 1% 0 0 45%;
+        }
+
+        input{
+            width: 400px;
+            height: 80%;
+            border: 1px solid black;
+            border-radius: 5px;
+        }
+
+        button{
+            margin-left: 10px;
+            padding: 6px;
+            border-radius: 5px;
+            background-color: black;
+            color: white;
+            cursor: pointer;
+        }
+
+
+        h1, h2{
+            margin-left: 5%;
+        }
+        #displayPopular{
+            width: 900px;
+            margin-left: 5%;
+            /* border: 1px solid gray; */
+        }
+        .contentDiv{
+            width: 800px;
+            margin-top: 10px;
+            border: 1px solid rgb(206, 200, 200);
+            cursor: pointer;
+        }
+        .contentHeadline{
+            margin: 5px;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .contentAuth{
+            margin: 5px;
+            font-size: 14px;
+            color: gray;
+        }
+
+        .dropDown{
+            border: 1px solid black;
+            margin-left: 1%;
+            width: 390px;
+        }
+
+        .ddDiv{
+            height: 40px;
+            border-bottom: 1px solid gray;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .ddContent{
+            font-size: 14px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+
+        <h1>Daily News</h1>
+        <div id="searchDiv">
+            <input oninput="debounce(fecthDropDown, 2000)" type="text" id="search" placeholder="Enter News">
+            <button id="searchBtn" onclick="searchNews()">Search</button>
+            <div id="dropDown"></div>
+        </div>
+    
+    </div>
+
+    
+
+    <h2>Popular News</h2>
+    
+    <div id="displayPopular"></div>
+    
+</body>
+</html>
+
+<!-- 9369b4803c324b5499a4be4800c2eaf7 -->
+<!-- https://newsapi.org/v2/top-headlines?country=us&apiKey=9369b4803c324b5499a4be4800c2eaf7 -->
+<!-- https://newsapi.org/v2/everything?q=Apple&from=2021-10-18&sortBy=popularity&apiKey=9369b4803c324b5499a4be4800c2eaf7 -->
+
+<script>
+
+    let popularContainer = document.getElementById("displayPopular");
+
+    function showPopular(){
+
+        fetch(`http://newsapi.org/v2/top-headlines?country=in&apiKey=9369b4803c324b5499a4be4800c2eaf7`)
+        .then((res) => {
+            return res.json();
+        })
+        .then((res) => {
+            console.log(res);
+            displayPopular(res.articles);
+
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
+
+    showPopular();
+
+    function displayPopular(news){
+
+        news.forEach(function(content){
+
+            let div = document.createElement("div");
+            div.setAttribute("class", "contentDiv");
+
+            let headLine = document.createElement("div");
+            headLine.innerText = content.description;
+            headLine.setAttribute("class", "contentHeadline");
+
+            let contAuthor = document.createElement("div");
+            contAuthor.innerText = content.author;
+            contAuthor.setAttribute("class", "contentAuth");
+
+            let contCompany = document.createElement("div");
+            contCompany.innerText = content.source.name;
+            contCompany.setAttribute("class", "contentAuth");
+
+            div.onclick = function(){
+                console.log("Working");
+                newsLocalStorage(content);
+                window.location.href = "news.html";
+            };
+
+            div.append(headLine, contAuthor, contCompany);
+            popularContainer.append(div);
+
+
+        });
+
+    }
+
+    if(localStorage.getItem("newsContent") === null){
+        localStorage.setItem("newsContent", JSON.stringify([]));
+    }
+
+    let arr = JSON.parse(localStorage.getItem("newsContent"));
+
+    function newsLocalStorage(news){
+
+        arr[0] = news;
+        localStorage.setItem("newsContent", JSON.stringify(arr));
+        console.log(arr);
+
+    }
+
+
+    function searchNews(){
+
+        let news = document.getElementById("search").value;
+
+        fetch(`http://newsapi.org/v2/everything?q=${news}&from=2021-10-18&sortBy=popularity&apiKey=9369b4803c324b5499a4be4800c2eaf7`)
+        .then((res) => {
+            return res.json();
+        })
+        .then((res) => {
+            console.log(res);
+            newsLocalStorage(res);
+            window.location.href = "search.html";
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+    }
+    
+    function fecthDropDown(){
+
+        let search = document.getElementById("search").value;
+
+        fetch(`http://newsapi.org/v2/everything?q=${search}&from=2021-10-18&sortBy=popularity&apiKey=9369b4803c324b5499a4be4800c2eaf7&pageSize=8`)
+        .then((res) => {
+            return res.json();
+        })
+        .then((res) => {
+            console.log(res);
+            appendDropDown(res.articles);
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+
+    }
+
+    let disdropDown = document.getElementById("dropDown");
+    let timerId;
+
+    function appendDropDown(news){
+
+        disdropDown.setAttribute("class", "dropDown");
+        disdropDown.innerHTML = null;
+
+        news.forEach(function(content){
+
+            let div = document.createElement("div");
+            div.setAttribute("class", "ddDiv");
+
+            let text = document.createElement("div");
+            text.innerText = content.title;
+            text.setAttribute("class", "ddContent");
+
+            div.onclick = function(){
+                searchNews();
+            };
+
+            div.append(text);
+            disdropDown.append(div);
+
+        });
+
+    }
+
+    function debounce(func, delay){
+
+        if(timerId){
+            clearTimeout(timerId);
+        }
+
+        timerId = setTimeout(function(){
+            func();
+        }, delay);
+
+    }
+
+
+
+</script>
